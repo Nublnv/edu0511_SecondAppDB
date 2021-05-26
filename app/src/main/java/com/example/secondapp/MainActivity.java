@@ -1,16 +1,20 @@
 package com.example.secondapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,23 +22,45 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
+    Button addUserButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerViewMain);
-        ArrayList<User> users = new ArrayList<>();
-        users.add(new User("Misha","+79161570495"));
-        users.add(new User("Masha","+79161570584"));
-        users.add(new User("Milena","+79161570216"));
-        users.add(new User("Galya","+79161570155"));
-        users.add(new User("Serega","+79161570747"));
-
+        ArrayList<User> users = new Users(MainActivity.this).get_users();
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         recyclerView.setAdapter(new UserAdapter(users));
+        addUserButton = findViewById(R.id.addUserButton);
+        addUserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AddUserActivity.class));
+            }
+        });
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        ArrayList<User> users = new Users(MainActivity.this).get_users();
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        recyclerView.setAdapter(new UserAdapter(users));
+    }
 
+    private void changeUser(User user){
+        Intent intent = new Intent(MainActivity.this, ChangeUserActivity.class);
+        intent.putExtra("user",user);
+        startActivity(intent);
+    }
+
+    private void deleteUser(User user)
+    {
+        Users users = Users.get(MainActivity.this);
+        users.delete(user);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        recyclerView.setAdapter(new UserAdapter(users.get_users()));
     }
 
     private class UserHolder extends RecyclerView.ViewHolder
@@ -50,7 +76,32 @@ public class MainActivity extends AppCompatActivity {
         public void Bind(User user)
         {
             Log.d("SYSTEM INFO","Method Bind called");
-            textView.setText("Имя:"+user.getName()+" Телефон: "+user.getPhoneNumber());
+            textView.setText(user.getName()+"\n Телефон: "+user.getPhoneNumber());
+            textView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    final CharSequence[] items = {"Изменить контакт", "Удалить контакт"};
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    builder.setTitle("Выберите действие");
+                    builder.setItems(items, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            switch (item){
+                                case 0:
+                                    changeUser(user);
+                                    break;
+                                case 1:
+                                    deleteUser(user);
+                                    break;
+                            }
+                        }
+                    });
+                    builder.show();
+                    return false;
+                }
+            });
             Log.d("SYSTEM INFO","Method Bind ended");
         }
     }

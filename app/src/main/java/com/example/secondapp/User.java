@@ -1,16 +1,42 @@
 package com.example.secondapp;
 
-public class User {
-    private String name;
+import java.io.Serializable;
+import java.util.UUID;
+
+public class User implements Serializable {
+    private UUID uuid;
+    private String firstName;
+    private String lastName;
     private String phoneNumber;
-    public User(String name, String phoneNumber)
+    public User(String firstName,String lastName, String phoneNumber)
     {
-        this.name = name;
+        this.uuid = UUID.randomUUID();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+    }
+    public User(UUID uuid, String  firstName,String lastName, String phoneNumber)
+    {
+        this.uuid = uuid;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.phoneNumber = phoneNumber;
     }
 
-    public String getName() {
-        return name;
+    public User()
+    {
+        this.uuid = UUID.randomUUID();
+    }
+
+    public UUID getUuid() { return uuid; }
+    public String getName() { return lastName + " " + firstName; }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getPhoneNumber() {
