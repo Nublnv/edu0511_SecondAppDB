@@ -12,6 +12,6 @@
         android:id="@+id/itemTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        />
+        android:background="@drawable/textview_border"
+        android:textSize="24sp" />
 </LinearLayout>
